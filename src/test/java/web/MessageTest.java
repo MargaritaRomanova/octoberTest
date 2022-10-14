@@ -2,6 +2,7 @@ package web;
 
 import io.qameta.allure.Description;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.PageFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -25,21 +26,18 @@ public class MessageTest {
     @Test
     @Description(value = "verify to send message")
     public void loginTest() throws InterruptedException {
-        LoginPage authPage = new LoginPage();
+        StartPage startPage = PageFactory.initElements(driver, StartPage.class);
+        LoginPage authPage = startPage.pressLoginButton();
         authPage.pressMailButtonIfNotPressed();
         PasswordPage passwordPage = authPage.authLogin();
-        passwordPage.authPassword();
-        Thread.sleep(5000);
-        MailPage mailPage = passwordPage.navigateTo("https://mail.yandex.ru");
+        MailPage mailPage = passwordPage.authPassword();
         mailPage.addSearchFilterAndPressSearchBtn("Simbirsoft Тестовое задание");
-        Thread.sleep(2000);
         int countMessageBeforeNewMessage = mailPage.getCountMessage();
         NewMessagePage newMessagePage = mailPage.pressWriteBtn();
         newMessagePage.writeAndSendMessage("simbirsoft.testtestov@yandex.ru",
-                "Simbirsoft Тестовое задание. Романова", countMessageBeforeNewMessage + "message(s)");
+                "Simbirsoft Тестовое задание. Романова", countMessageBeforeNewMessage + " message(s)");
         Thread.sleep(5000);
         mailPage = newMessagePage.refreshPage();
-        mailPage.pressSearchButton();
         int countMessageAfterNewMessage = mailPage.getCountMessage();
         assertEquals(countMessageBeforeNewMessage + 1, countMessageAfterNewMessage,
                 "message did not send");

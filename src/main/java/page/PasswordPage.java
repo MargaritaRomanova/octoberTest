@@ -1,8 +1,9 @@
 package page;
 
 import io.qameta.allure.Step;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 import org.testng.Assert;
 import util.PropertyReader;
 
@@ -12,12 +13,13 @@ public class PasswordPage extends BasePage {
         super();
     }
 
-    private static final String PASSWORD_NAME = "passwd";
-    private static final String BUTTON = "//button[.//span[text()= 'Войти']]";
+    @FindBy(name = "passwd")
+    WebElement passwordField;
+
+    @FindBy(xpath = "//button[.//span[text()= 'Войти']]")
+    WebElement signButton;
 
     private void fillPasswordField() {
-        WebElement passwordField = driver.findElement(By.name(PASSWORD_NAME));
-        passwordField.click();
         passwordField.sendKeys(PropertyReader.getPassword());
         Assert.assertFalse(passwordField.getAttribute("value").isEmpty(), "password field is empty");
         Assert.assertEquals(passwordField.getAttribute("value"),
@@ -25,21 +27,14 @@ public class PasswordPage extends BasePage {
     }
 
     private void pressSignButton(){
-        WebElement signButton = driver.findElement(By.xpath(BUTTON));
         signButton.click();
     }
 
     @Step("Авторизация пользователя на странице Пароль")
-    public void authPassword(){
+    public MailPage authPassword(){
         fillPasswordField();
         pressSignButton();
         saveScreenshot(driver);
-    }
-
-    @Step("Переход на страницу")
-    public MailPage navigateTo(String url){
-        driver.navigate().to(url);
-        saveScreenshot(driver);
-        return new MailPage();
+        return PageFactory.initElements(driver, MailPage.class);
     }
 }
